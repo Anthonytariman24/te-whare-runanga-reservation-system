@@ -1,0 +1,21 @@
+
+{% extends 'base.html' %}
+{% block content %}
+<h2>All Reservations (Admin)</h2>
+<table border="1">
+<tr><th>ID</th><th>Customer</th><th>Room</th><th>Dates</th><th>Status</th><th>Actions</th></tr>
+{% for r in reservations %}
+<tr>
+  <td>{{ r.id }}</td>
+  <td>{{ r.customer.username }}</td>
+  <td>{{ r.room }}</td>
+  <td>{{ r.check_in }} to {{ r.check_out }}</td>
+  <td>{{ r.status }}</td>
+  <td>
+    {% if r.status != 'APPROVED' %}<a href="{% url 'hotel:approve_reservation' r.id %}">Approve</a>{% endif %}
+    {% if r.status != 'CANCELLED' %} | <a href="{% url 'hotel:cancel_reservation' r.id %}">Cancel</a>{% endif %}
+  </td>
+</tr>
+{% empty %}<tr><td colspan="6">No reservations</td></tr>{% endfor %}
+</table>
+{% endblock %}

@@ -1,0 +1,10 @@
+
+{% extends 'base.html' %}
+{% block content %}
+<h2>Available Rooms</h2>
+<ul>
+  {% for r in rooms %}
+    <li>{{ r.number }} - {{ r.room_type }} - PHP {{ r.price }} - <a href="{% url 'hotel:make_reservation' r.id %}">Reserve</a></li>
+  {% empty %}<li>No rooms available.</li>{% endfor %}
+</ul>
+{% endblock %}

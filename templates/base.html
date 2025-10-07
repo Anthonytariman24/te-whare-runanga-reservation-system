@@ -1,0 +1,43 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Hotel</title>
+</head>
+<body>
+  <nav>
+    {% if user.is_authenticated %}
+      Logged in as {{ user.username }} |
+      <a href="{% url 'hotel:logout' %}">Logout</a> |
+
+
+      {% if user.is_staff %}
+        <!-- Admin navigation -->
+        <a href="{% url 'hotel:admin_reservations' %}">All Reservations</a> |
+        <a href="{% url 'hotel:manage_rooms' %}">Manage Rooms</a>
+
+      {% else %}
+        <!-- Customer navigation -->
+        <a href="{% url 'hotel:room_list' %}">Available Rooms</a> |
+        <a href="{% url 'hotel:my_reservations' %}">My Reservations</a> |
+        <a href="{% url 'hotel:notifications' %}">Notifications</a>
+      {% endif %}
+    {% else %}
+      <a href="{% url 'login' %}">Login</a> |
+      <a href="{% url 'hotel:register' %}">Register</a>
+    {% endif %}
+  </nav>
+
+  <hr/>
+  
+  {% if messages %}
+    <ul>
+      {% for m in messages %}
+        <li>{{ m }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  {% block content %}{% endblock %}
+</body>
+</html>

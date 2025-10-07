@@ -1,11 +1,10 @@
-{% extends 'hotel/base.html' %}
+
+{% extends 'base.html' %}
 {% block content %}
 <h2>My Reservations</h2>
 <ul>
   {% for r in reservations %}
-    <li>#{{ r.id }} - {{ r.room }} - {{ r.check_in }} to {{ r.check_out }} - {{ r.status }}</li>
-  {% empty %}
-    <li>No reservations yet.</li>
-  {% endfor %}
+    <li>ID {{ r.id }} - {{ r.room }} - {{ r.check_in }} to {{ r.check_out }} - Status: {{ r.status }}</li>
+  {% empty %}<li>You have no reservations.</li>{% endfor %}
 </ul>
 {% endblock %}

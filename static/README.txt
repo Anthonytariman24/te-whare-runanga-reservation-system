@@ -1,1 +1,0 @@
-Put static files (CSS/JS) here.

@@ -10,8 +10,9 @@ Admin
 
 
 Customer
+--Registration
 --Login
---View All Available Room
+--View All Available Room (added by admin)
 --make reservation
 --received notifications
 --view reservation history
