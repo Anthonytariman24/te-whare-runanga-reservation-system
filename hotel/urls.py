@@ -21,4 +21,7 @@ urlpatterns = [
 
     # ✅ custom logout
     path('logout/', views.logout_view, name='logout'),
+
+    path('add-room/', views.add_room, name='add_room')
+
 ]

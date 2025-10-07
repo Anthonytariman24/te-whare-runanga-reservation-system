@@ -9,42 +9,74 @@
 <body class="bg-gray-100 min-h-screen flex flex-col">
   <!-- Navbar -->
 <!-- Navbar -->
+<!-- Navbar -->
 <nav class="bg-white shadow-md">
-  <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+  <div class="container mx-auto px-6 py-4 flex items-center justify-between relative">
+    
+    <!-- Logo on the left -->
     <a href="/" class="text-2xl font-bold text-blue-600">Hotel</a>
 
-    <div class="space-x-4 text-gray-700 flex items-center">
+    <!-- Centered navigation links -->
+    <div class="absolute left-1/2 transform -translate-x-1/2 flex space-x-6">
       {% if user.is_authenticated %}
-        <span class="text-sm text-gray-600 mr-4">Logged in as 
-          <span class="font-semibold text-blue-500">{{ user.username }}</span>
+        {% if user.is_staff %}
+          <!-- Admin navigation -->
+          <a href="{% url 'hotel:admin_reservations' %}" 
+             class="text-gray-700 hover:text-blue-500 font-medium transition-colors duration-200">
+            All Reservations
+          </a>
+          <a href="{% url 'hotel:manage_rooms' %}" 
+             class="text-gray-700 hover:text-blue-500 font-medium transition-colors duration-200">
+            Manage Rooms
+          </a>
+        {% else %}
+          <!-- Customer navigation -->
+          <a href="{% url 'hotel:room_list' %}" 
+             class="text-gray-700 hover:text-blue-500 font-medium transition-colors duration-200">
+            Available Rooms
+          </a>
+          <a href="{% url 'hotel:my_reservations' %}" 
+             class="text-gray-700 hover:text-blue-500 font-medium transition-colors duration-200">
+            My Reservations
+          </a>
+          <a href="{% url 'hotel:notifications' %}" 
+             class="text-gray-700 hover:text-blue-500 font-medium transition-colors duration-200">
+            Notifications
+          </a>
+        {% endif %}
+      {% else %}
+        <!-- Guest navigation -->
+        <a href="{% url 'hotel:login' %}" 
+           class="text-gray-700 hover:text-blue-500 font-medium transition-colors duration-200">
+           Login
+        </a>
+        <a href="{% url 'hotel:register' %}" 
+           class="text-gray-700 hover:text-blue-500 font-medium transition-colors duration-200">
+           Register
+        </a>
+      {% endif %}
+    </div>
+
+    <!-- Username + Logout on the right -->
+    {% if user.is_authenticated %}
+      <div class="flex items-center space-x-4">
+        <span class="text-sm text-gray-600">
+          Logged in as <span class="font-semibold text-blue-500 capitalize">{{ user.username }}</span>
         </span>
 
-        <!-- Logout form (POST) -->
-        <form method="POST" action="{% url 'hotel:logout' %}" class="inline">
+        <form method="POST" action="{% url 'hotel:logout' %}">
           {% csrf_token %}
-          <button type="submit" class="text-sm text-red-500 hover:text-red-600 font-medium">
+          <button type="submit" 
+                  class="text-sm cursor-pointer text-red-500 hover:text-red-600 font-medium transition-colors duration-200">
             Logout
           </button>
         </form>
+      </div>
+    {% endif %}
 
-        {% if user.is_staff %}
-          <!-- Admin navigation -->
-          <a href="{% url 'hotel:admin_reservations' %}" class="hover:text-blue-500 font-medium ml-4">All Reservations</a>
-          <a href="{% url 'hotel:manage_rooms' %}" class="hover:text-blue-500 font-medium ml-4">Manage Rooms</a>
-        {% else %}
-          <!-- Customer navigation -->
-          <a href="{% url 'hotel:room_list' %}" class="hover:text-blue-500 font-medium ml-4">Available Rooms</a>
-          <a href="{% url 'hotel:my_reservations' %}" class="hover:text-blue-500 font-medium ml-4">My Reservations</a>
-          <a href="{% url 'hotel:notifications' %}" class="hover:text-blue-500 font-medium ml-4">Notifications</a>
-        {% endif %}
-
-      {% else %}
-        <a href="{% url 'hotel:login' %}" class="hover:text-blue-500 font-medium">Login</a>
-        <a href="{% url 'hotel:register' %}" class="hover:text-blue-500 font-medium ml-4">Register</a>
-      {% endif %}
-    </div>
   </div>
 </nav>
+
 
 
   <!-- Messages -->
@@ -79,5 +111,68 @@
     &copy; {{ now|date:"Y" }} Hotel Management System. All rights reserved.
   </footer>
 
+
+
+
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+
+{% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
+    // Open modal
+    $("#openModal").click(function(e) {
+        e.preventDefault();
+        console.log('click');
+        $("#addRoomModal").fadeIn();
+    });
+
+    // Close modal
+    $("#closeModal").click(function() {
+        $("#addRoomModal").fadeOut();
+    });
+
+    // Submit form via AJAX
+    $("#addRoomForm").submit(function(e) {
+        e.preventDefault();
+        var form = $(this);
+        $.ajax({
+            type: "POST",
+            url: "{% url 'hotel:add_room' %}",  // Django URL for room creation
+            data: form.serialize(),
+            success: function(response) {
+                if(response.success) {
+                    // Add new row to the table
+                    var newRow = `<tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap text-gray-800 font-medium">${response.room.number}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-gray-700">${response.room.room_type || '-'}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-gray-700">₱${response.room.price}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-gray-600">${response.room.description || '(no description)'}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                          <span class="flex items-center px-2 py-1 bg-green-200 text-green-800 rounded-full text-sm font-semibold">
+                            <span class="material-icons text-green-800 mr-1">check_circle</span> Active
+                          </span>
+                        </td>
+                    </tr>`;
+                    $("table tbody").prepend(newRow);
+                    form[0].reset();
+                    $("#addRoomModal").fadeOut();
+                } else {
+                    alert("Error: " + response.error);
+                }
+            },
+            error: function(xhr) {
+                alert("An error occurred. Please try again.");
+            }
+        });
+    });
+});
+</script>
+{% endblock %}
+
+
 </body>
 </html>
+
+

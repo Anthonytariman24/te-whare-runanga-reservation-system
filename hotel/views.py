@@ -4,6 +4,10 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from .models import Room, Reservation, Notification
 from .forms import ReservationForm, UserRegistrationForm,LoginForm  
+from django.http import JsonResponse
+
+
+
 
 
 # -------------------
@@ -169,3 +173,44 @@ def cancel_reservation(request, res_id):
 def manage_rooms(request):
     rooms = Room.objects.all().order_by('number')
     return render(request, 'hotel/manage_rooms.html', {'rooms': rooms})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@login_required
+@user_passes_test(is_admin)
+def add_room(request):
+    if request.method == "POST":
+        number = request.POST.get("number")
+        room_type = request.POST.get("room_type")
+        price = request.POST.get("price")
+        description = request.POST.get("description")
+        if not number or not price:
+            return JsonResponse({"success": False, "error": "Number and Price are required."})
+        room = Room.objects.create(
+            number=number,
+            room_type=room_type,
+            price=price,
+            description=description,
+            is_active=True
+        )
+        return JsonResponse({
+            "success": True,
+            "room": {
+                "number": room.number,
+                "room_type": room.room_type,
+                "price": str(room.price),
+                "description": room.description
+            }
+        })
+    return JsonResponse({"success": False, "error": "Invalid request method."})
