@@ -8,7 +8,8 @@ DEBUG = True
 ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
-    'te-whare-runanga-reservation-system-six.vercel.app',
+    'te-whare-runanga-reservation-system.vercel.app',
+    'te-whare-runanga-reservation-system-bfyl3b3le.vercel.app',
 ]
 
 INSTALLED_APPS = [
