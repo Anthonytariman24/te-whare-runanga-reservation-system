@@ -1,12 +1,23 @@
 from pathlib import Path
 import os
+import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-change-me'
-DEBUG = True
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']  # idagdag ang localhost para dev
+# -------------------------
+# SECRET & DEBUG
+# -------------------------
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-change-me')
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
+# -------------------------
+# HOSTS
+# -------------------------
+ALLOWED_HOSTS = ['.vercel.app', 'localhost', '127.0.0.1']
+
+# -------------------------
+# INSTALLED APPS
+# -------------------------
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -18,9 +29,13 @@ INSTALLED_APPS = [
     'corsheaders',
 ]
 
+# -------------------------
+# MIDDLEWARE
+# -------------------------
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',  # dapat nasa taas para ma-apply sa lahat ng requests
+    'corsheaders.middleware.CorsMiddleware',  
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # handle static files in production
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -29,18 +44,23 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+# -------------------------
 # CORS
+# -------------------------
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",  # development frontend
-    # Sa production, palitan ng frontend URL, hal: "https://myfrontend.vercel.app"
+    "http://localhost:3000",
+    "https://your-frontend.vercel.app",  # replace with your production frontend
 ]
 
+# -------------------------
+# URLS & TEMPLATES
+# -------------------------
 ROOT_URLCONF = 'hotel_project.urls'
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -55,49 +75,51 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'hotel_project.wsgi.application'
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-#     }
-# }
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
-        'USER': 'postgres.yldxaicrrsvdeneteiai',
-        'PASSWORD': 'eG74yiZEVESnOAyS', 
-        'HOST': 'aws-1-ap-southeast-1.pooler.supabase.com',
-        'PORT': '6543',
-        'OPTIONS': {
-            'sslmode': 'require',
-        },
+# -------------------------
+# DATABASE (Supabase/Postgres)
+# -------------------------
+DATABASE_URL = os.environ.get('DATABASE_URL')  # put full URL in Vercel env
+if DATABASE_URL:
+    DATABASES = {
+        'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600, ssl_require=True)
     }
-}
+else:
+    # fallback to local SQLite
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
-
-
+# -------------------------
+# PASSWORD VALIDATORS
+# -------------------------
 AUTH_PASSWORD_VALIDATORS = []
 
+# -------------------------
+# INTERNATIONALIZATION
+# -------------------------
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-# STATIC FILES CONFIGURATION
+# -------------------------
+# STATIC FILES
+# -------------------------
 STATIC_URL = '/static/'
-
-# Folder kung saan hahanapin ang static files during development
-STATICFILES_DIRS = [
-    BASE_DIR / "static",
-]
-
-# Folder kung saan iko-collect lahat ng static files bago i-deploy
+STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'  # production
 
+# -------------------------
+# DEFAULT PK
+# -------------------------
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# LOGIN
+# -------------------------
+# LOGIN REDIRECTS
+# -------------------------
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
