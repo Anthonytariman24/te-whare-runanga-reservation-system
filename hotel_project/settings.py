@@ -8,7 +8,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECRET & DEBUG
 # -------------------------
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-change-me')
-DEBUG = os.environ.get('DEBUG', 'False') == 'True'
+DEBUG = os.environ.get('DEBUG', 'True') == 'True'  # Default True for local dev
 
 # -------------------------
 # HOSTS
@@ -33,9 +33,9 @@ INSTALLED_APPS = [
 # MIDDLEWARE
 # -------------------------
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',  
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # handle static files in production
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # static files for production
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -48,8 +48,8 @@ MIDDLEWARE = [
 # CORS
 # -------------------------
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "https://your-frontend.vercel.app",  # replace with your production frontend
+    "http://localhost:3000",  # local frontend dev
+    "https://your-frontend.vercel.app",  # production frontend
 ]
 
 # -------------------------
@@ -76,15 +76,16 @@ TEMPLATES = [
 WSGI_APPLICATION = 'hotel_project.wsgi.application'
 
 # -------------------------
-# DATABASE (Supabase/Postgres)
+# DATABASE
 # -------------------------
-DATABASE_URL = os.environ.get('DATABASE_URL')  # put full URL in Vercel env
+DATABASE_URL = os.environ.get('DATABASE_URL')
 if DATABASE_URL:
+    # Production/Postgres (Supabase)
     DATABASES = {
         'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600, ssl_require=True)
     }
 else:
-    # fallback to local SQLite
+    # Local fallback (SQLite)
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
@@ -111,7 +112,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'  # production
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # -------------------------
 # DEFAULT PK
