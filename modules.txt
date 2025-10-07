@@ -1,0 +1,18 @@
+Admin
+--Login
+--Create Room 
+--Update Room Details 
+--List of all Reservation
+--Approve Reservation
+--Cancel Reservation
+--Logout
+
+
+
+Customer
+--Login
+--View All Available Room
+--make reservation
+--received notifications
+--view reservation history
+--Logout
