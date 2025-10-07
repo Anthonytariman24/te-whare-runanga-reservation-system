@@ -1,10 +1,12 @@
-
 from pathlib import Path
 import os
+
 BASE_DIR = Path(__file__).resolve().parent.parent
+
 SECRET_KEY = 'django-insecure-change-me'
 DEBUG = True
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']  # idagdag ang localhost para dev
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -13,8 +15,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'hotel',
+    'corsheaders',
 ]
+
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',  # dapat nasa taas para ma-apply sa lahat ng requests
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -23,7 +28,15 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+# CORS
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",  # development frontend
+    # Sa production, palitan ng frontend URL, hal: "https://myfrontend.vercel.app"
+]
+
 ROOT_URLCONF = 'hotel_project.urls'
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -39,19 +52,36 @@ TEMPLATES = [
         },
     },
 ]
+
 WSGI_APPLICATION = 'hotel_project.wsgi.application'
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
+
 AUTH_PASSWORD_VALIDATORS = []
+
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
+
+# STATIC FILES CONFIGURATION
 STATIC_URL = '/static/'
+
+# Folder kung saan hahanapin ang static files during development
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
+
+# Folder kung saan iko-collect lahat ng static files bago i-deploy
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# LOGIN
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'

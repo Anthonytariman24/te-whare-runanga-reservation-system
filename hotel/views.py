@@ -75,11 +75,11 @@ def is_customer(user):
 # Customer Views
 # -------------------
 
-@login_required
-@user_passes_test(is_customer)
+# Remove login_required and user_passes_test
 def room_list(request):
     rooms = Room.objects.filter(is_active=True)
     return render(request, 'hotel/room_list.html', {'rooms': rooms})
+
 
 
 @login_required
@@ -108,6 +108,7 @@ def make_reservation(request, room_id):
     else:
         form = ReservationForm(initial={'room': room.id})
     return render(request, 'hotel/make_reservation.html', {'form': form, 'room': room})
+
 
 
 @login_required
