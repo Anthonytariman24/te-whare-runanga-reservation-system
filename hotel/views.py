@@ -5,7 +5,7 @@ from django.contrib import messages
 from .models import Room, Reservation, Notification
 from .forms import ReservationForm, UserRegistrationForm,LoginForm  
 from django.http import JsonResponse
-
+from datetime import date
 
 
 # -------------------
@@ -76,12 +76,51 @@ def is_customer(user):
 # -------------------
 # Customer Views
 # -------------------
-
-# Remove login_required and user_passes_test
 def room_list(request):
-    rooms = Room.objects.filter(is_active=True)
-    return render(request, 'hotel/room_list.html', {'rooms': rooms})
+    today = date.today()
 
+    # ✅ Available rooms: walang approved reservation na active pa
+    rooms = Room.objects.filter(is_active=True).exclude(
+        reservations__status='APPROVED',
+        reservations__check_out__gte=today
+    ).distinct()
+
+    # ✅ Occupied rooms: may approved reservation na hindi pa tapos
+    occupied_rooms = Room.objects.filter(
+        is_active=True,
+        reservations__status='APPROVED',
+        reservations__check_out__gte=today
+    ).distinct()
+
+    # Attach latest reservation dates (check_in / check_out) per occupied room
+    for room in occupied_rooms:
+        latest_reservation = room.reservations.filter(
+            status='APPROVED',
+            check_out__gte=today
+        ).order_by('-check_in').first()
+
+        room.check_in = latest_reservation.check_in if latest_reservation else None
+        room.check_out = latest_reservation.check_out if latest_reservation else None
+
+    # 🔹 If user is authenticated, get their latest reservation per room
+    user_reservations = {}
+    if request.user.is_authenticated:
+        reservations = Reservation.objects.filter(
+            customer=request.user
+        ).order_by('-created_at')
+
+        # store only the latest reservation per room
+        for res in reservations:
+            if res.room.id not in user_reservations:
+                user_reservations[res.room.id] = res.status
+
+    # ✅ Pass all data to template
+    context = {
+        'rooms': rooms,
+        'occupied_rooms': occupied_rooms,
+        'user_reservations': user_reservations,
+    }
+    return render(request, 'hotel/room_list.html', context)
 
 
 @login_required

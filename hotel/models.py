@@ -1,6 +1,9 @@
 
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils import timezone
+from datetime import date
+
 STATUS_CHOICES = (
     ('PENDING','Pending'),
     ('APPROVED','Approved'),
@@ -12,8 +15,17 @@ class Room(models.Model):
     price = models.DecimalField(max_digits=8, decimal_places=2)
     description = models.TextField(blank=True)
     is_active = models.BooleanField(default=True)
+
     def __str__(self):
         return f"Room {self.number} ({self.room_type})"
+
+    def is_occupied(self):
+        """I-check kung ang room ay may active reservation."""
+        today = date.today()
+        return self.reservations.filter(
+            status__in=['APPROVED', 'PENDING'],
+            check_out__gte=today
+        ).exists()
 
 class Reservation(models.Model):
     customer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reservations')

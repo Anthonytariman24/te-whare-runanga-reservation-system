@@ -24,4 +24,6 @@ urlpatterns = [
 
     path('add-room/', views.add_room, name='add_room')
 
+    
+
 ]

@@ -1,6 +1,10 @@
 {% extends 'base.html' %}
+{% load custom_filters %}
+
 {% block content %}
 <div class="container mx-auto py-8">
+
+  <!-- AVAILABLE ROOMS -->
   <h2 class="text-3xl font-bold text-gray-900 mb-6 text-center">Available Rooms</h2>
 
   {% if rooms %}
@@ -12,22 +16,79 @@
           <p class="text-gray-600 mb-4">Price: <span class="font-medium">PHP {{ r.price }}</span></p>
 
           {% if request.user.is_authenticated %}
-            <a href="{% url 'hotel:make_reservation' r.id %}" 
+            {% with status=user_reservations|get_item:r.id %}
+              {% if status %}
+                <!-- 🔹 Show reservation status -->
+                <p class="text-center font-semibold 
+                  {% if status == 'APPROVED' %} text-green-600
+                  {% elif status == 'PENDING' %} text-yellow-600
+                  {% elif status == 'CANCELLED' %} text-red-600
+                  {% else %} text-gray-600 {% endif %}
+                ">
+                  Your Reservation: {{ status|title }}
+                </p>
+              {% else %}
+                <!-- 🔹 Show Reserve button if no reservation -->
+                <a href="{% url 'hotel:make_reservation' r.id %}" 
+                   class="inline-block w-full text-center py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md transition-colors">
+                  Reserve
+                </a>
+              {% endif %}
+            {% endwith %}
+          {% else %}
+            <!-- 🔹 Not logged in -->
+            <a href="{% url 'hotel:login' %}" 
                class="inline-block w-full text-center py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md transition-colors">
               Reserve
             </a>
-          {% else %}
-            <a href="{% url 'hotel:login' %}" 
-                 class="inline-block w-full text-center py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md transition-colors">
-            Reserve
-            </a>
           {% endif %}
-
         </div>
       {% endfor %}
     </div>
   {% else %}
     <p class="text-center text-gray-500 mt-6">No rooms available at the moment.</p>
   {% endif %}
+
+
+  <!-- OCCUPIED ROOMS -->
+  {% if occupied_rooms %}
+    <h2 class="text-3xl font-bold text-gray-900 mt-12 mb-6 text-center">Occupied Rooms</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {% for r in occupied_rooms %}
+        <div class="bg-gray-100 p-6 rounded-xl shadow-md">
+          <h3 class="text-xl font-semibold text-gray-800 mb-2">Room {{ r.number }}</h3>
+          <p class="text-gray-600 mb-1">Type: {{ r.room_type }}</p>
+          <p class="text-gray-600 mb-1">Price: PHP {{ r.price }}</p>
+
+          {% if r.check_in and r.check_out %}
+            <div class="mt-3 text-gray-700">
+              <p><span class="font-medium">Check-in:</span> {{ r.check_in|date:"M d, Y" }}</p>
+              <p><span class="font-medium">Check-out:</span> {{ r.check_out|date:"M d, Y" }}</p>
+            </div>
+          {% endif %}
+
+          {% with status=user_reservations|get_item:r.id %}
+            {% if status %}
+              <p class="mt-3 font-semibold 
+                {% if status == 'APPROVED' %} text-green-600
+                {% elif status == 'PENDING' %} text-yellow-600
+                {% elif status == 'CANCELLED' %} text-red-600
+                {% else %} text-gray-600 {% endif %}
+              ">
+                Your Reservation: {{ status|title }}
+              </p>
+            {% else %}
+
+
+            
+
+              <p class="text-red-600 text-center font-semibold  mt-3">Currently Occupied</p>
+            {% endif %}
+          {% endwith %}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
 </div>
 {% endblock %}
