@@ -1,0 +1,12 @@
+{% extends 'hotel/base.html' %}
+{% block content %}
+<h2>Admin Dashboard</h2>
+<a href="{% url 'create_room' %}">Create Room</a> |
+<a href="{% url 'list_reservations' %}">View Reservations</a>
+<h3>All Rooms</h3>
+<ul>
+  {% for room in rooms %}
+    <li>{{ room.number }} - {{ room.name }} - {% if room.is_available %}Available{% else %}Not available{% endif %} - <a href="{% url 'update_room' room.id %}">Edit</a></li>
+  {% empty %}<li>No rooms.</li>{% endfor %}
+</ul>
+{% endblock %}

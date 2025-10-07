@@ -16,3 +16,9 @@ Customer
 --received notifications
 --view reservation history
 --Logout
+
+
+
+Database:
+
+SQLITE

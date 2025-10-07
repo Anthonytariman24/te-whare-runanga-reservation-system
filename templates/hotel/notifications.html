@@ -1,0 +1,11 @@
+{% extends 'hotel/base.html' %}
+{% block content %}
+<h2>Notifications</h2>
+<ul>
+  {% for n in notifications %}
+    <li>{{ n.created_at }} - {{ n.message }} {% if not n.is_read %}<strong>(new)</strong>{% endif %}</li>
+  {% empty %}
+    <li>No notifications.</li>
+  {% endfor %}
+</ul>
+{% endblock %}

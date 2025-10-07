@@ -1,0 +1,11 @@
+{% extends 'hotel/base.html' %}
+{% block content %}
+<h2>My Reservations</h2>
+<ul>
+  {% for r in reservations %}
+    <li>#{{ r.id }} - {{ r.room }} - {{ r.check_in }} to {{ r.check_out }} - {{ r.status }}</li>
+  {% empty %}
+    <li>No reservations yet.</li>
+  {% endfor %}
+</ul>
+{% endblock %}
