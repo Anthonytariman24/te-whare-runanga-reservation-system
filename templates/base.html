@@ -1,43 +1,74 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <title>Hotel</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-  <nav>
-    {% if user.is_authenticated %}
-      Logged in as {{ user.username }} |
-      <a href="{% url 'hotel:logout' %}">Logout</a> |
+<body class="bg-gray-100 min-h-screen flex flex-col">
+  <!-- Navbar -->
+  <nav class="bg-white shadow-md">
+    <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+      <a href="/" class="text-2xl font-bold text-blue-600">Hotel</a>
 
+      <div class="space-x-4 text-gray-700">
+        {% if user.is_authenticated %}
+          <span class="text-sm text-gray-600">Logged in as 
+            <span class="font-semibold text-blue-500">{{ user.username }}</span>
+          </span>
+          <a href="{% url 'hotel:logout' %}" class="text-sm text-red-500 hover:text-red-600 font-medium">Logout</a>
 
-      {% if user.is_staff %}
-        <!-- Admin navigation -->
-        <a href="{% url 'hotel:admin_reservations' %}">All Reservations</a> |
-        <a href="{% url 'hotel:manage_rooms' %}">Manage Rooms</a>
+          {% if user.is_staff %}
+            <!-- Admin navigation -->
+            <a href="{% url 'hotel:admin_reservations' %}" class="hover:text-blue-500 font-medium">All Reservations</a>
+            <a href="{% url 'hotel:manage_rooms' %}" class="hover:text-blue-500 font-medium">Manage Rooms</a>
 
-      {% else %}
-        <!-- Customer navigation -->
-        <a href="{% url 'hotel:room_list' %}">Available Rooms</a> |
-        <a href="{% url 'hotel:my_reservations' %}">My Reservations</a> |
-        <a href="{% url 'hotel:notifications' %}">Notifications</a>
-      {% endif %}
-    {% else %}
-      <a href="{% url 'login' %}">Login</a> |
-      <a href="{% url 'hotel:register' %}">Register</a>
-    {% endif %}
+          {% else %}
+            <!-- Customer navigation -->
+            <a href="{% url 'hotel:room_list' %}" class="hover:text-blue-500 font-medium">Available Rooms</a>
+            <a href="{% url 'hotel:my_reservations' %}" class="hover:text-blue-500 font-medium">My Reservations</a>
+            <a href="{% url 'hotel:notifications' %}" class="hover:text-blue-500 font-medium">Notifications</a>
+          {% endif %}
+        {% else %}
+          <a href="{% url 'login' %}" class="hover:text-blue-500 font-medium">Login</a>
+          <a href="{% url 'hotel:register' %}" class="hover:text-blue-500 font-medium">Register</a>
+        {% endif %}
+      </div>
+    </div>
   </nav>
 
-  <hr/>
-  
+  <!-- Messages -->
   {% if messages %}
-    <ul>
+  <div class="container mx-auto px-6 mt-4">
+    <ul class="space-y-2">
       {% for m in messages %}
-        <li>{{ m }}</li>
+        <li class="p-3 rounded-md 
+                   {% if m.tags == 'success' %}
+                     bg-green-100 text-green-800
+                   {% elif m.tags == 'error' %}
+                     bg-red-100 text-red-800
+                   {% elif m.tags == 'warning' %}
+                     bg-yellow-100 text-yellow-800
+                   {% else %}
+                     bg-gray-100 text-gray-800
+                   {% endif %}">
+          {{ m }}
+        </li>
       {% endfor %}
     </ul>
+  </div>
   {% endif %}
 
-  {% block content %}{% endblock %}
+  <!-- Content Block -->
+  <main class="flex-grow container mx-auto px-6 py-8">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-white shadow-inner py-4 text-center text-sm text-gray-500">
+    &copy; {{ now|date:"Y" }} Hotel Management System. All rights reserved.
+  </footer>
+
 </body>
 </html>
