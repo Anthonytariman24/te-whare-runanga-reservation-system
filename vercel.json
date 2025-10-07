@@ -2,13 +2,13 @@
   "version": 2,
   "builds": [
     {
-      "src": "manage.py",
+      "src": "hotel_project/wsgi.py",
       "use": "@vercel/python",
       "config": { "maxLambdaSize": "50mb" }
     }
   ],
   "routes": [
     { "src": "/static/(.*)", "dest": "/static/$1" },
-    { "src": "/(.*)", "dest": "manage.py" }
+    { "src": "/(.*)", "dest": "hotel_project/wsgi.py" }
   ]
 }
