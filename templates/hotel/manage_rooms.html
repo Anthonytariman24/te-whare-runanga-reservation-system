@@ -1,28 +1,47 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Manage Rooms</h2>
+<div class="container mx-auto py-8">
+  <div class="flex justify-between items-center mb-6">
+    <h2 class="text-3xl font-bold text-gray-900">Manage Rooms</h2>
+    <a href="#"
+       class="px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition">
+       ➕ Add New Room
+    </a>
+  </div>
 
-<a href="#" style="margin-bottom: 10px; display: inline-block;">➕ Add New Room</a>
-
-<table border="1" cellpadding="6" cellspacing="0">
-  <tr>
-    <th>Room Number</th>
-    <th>Type</th>
-    <th>Price</th>
-    <th>Description</th>
-    <th>Status</th>
-  </tr>
-
-  {% for room in rooms %}
-  <tr>
-    <td>{{ room.number }}</td>
-    <td>{{ room.room_type }}</td>
-    <td>${{ room.price }}</td>
-    <td>{{ room.description|default:"(no description)" }}</td>
-    <td>{% if room.is_active %}Active{% else %}Inactive{% endif %}</td>
-  </tr>
-  {% empty %}
-  <tr><td colspan="5">No rooms available.</td></tr>
-  {% endfor %}
-</table>
+  <div class="overflow-x-auto">
+    <table class="min-w-full bg-white rounded-xl shadow divide-y divide-gray-200">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Room Number</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-200">
+        {% for room in rooms %}
+        <tr class="hover:bg-gray-50">
+          <td class="px-6 py-4 whitespace-nowrap text-gray-800 font-medium">{{ room.number }}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-gray-700">{{ room.room_type|default:"-" }}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-gray-700">${{ room.price }}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-gray-600">{{ room.description|default:"(no description)" }}</td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            {% if room.is_active %}
+              <span class="px-2 py-1 bg-green-200 text-green-800 rounded-full text-sm font-semibold">Active</span>
+            {% else %}
+              <span class="px-2 py-1 bg-red-200 text-red-800 rounded-full text-sm font-semibold">Inactive</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="5" class="px-6 py-4 text-center text-gray-500">No rooms available.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
 {% endblock %}

@@ -1,21 +1,44 @@
-
 {% extends 'base.html' %}
 {% block content %}
-<h2>All Reservations (Admin)</h2>
-<table border="1">
-<tr><th>ID</th><th>Customer</th><th>Room</th><th>Dates</th><th>Status</th><th>Actions</th></tr>
-{% for r in reservations %}
-<tr>
-  <td>{{ r.id }}</td>
-  <td>{{ r.customer.username }}</td>
-  <td>{{ r.room }}</td>
-  <td>{{ r.check_in }} to {{ r.check_out }}</td>
-  <td>{{ r.status }}</td>
-  <td>
-    {% if r.status != 'APPROVED' %}<a href="{% url 'hotel:approve_reservation' r.id %}">Approve</a>{% endif %}
-    {% if r.status != 'CANCELLED' %} | <a href="{% url 'hotel:cancel_reservation' r.id %}">Cancel</a>{% endif %}
-  </td>
-</tr>
-{% empty %}<tr><td colspan="6">No reservations</td></tr>{% endfor %}
-</table>
+<div class="min-h-screen px-4 sm:px-6 lg:px-8">
+  <h2 class="text-2xl font-bold text-gray-900 mb-6">All Reservations (Admin)</h2>
+
+  <div class="overflow-x-auto">
+    <table class="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
+      <thead class="bg-gray-100">
+        <tr>
+          <th class="px-6 py-3 text-left text-sm font-medium text-gray-700">ID</th>
+          <th class="px-6 py-3 text-left text-sm font-medium text-gray-700">Customer</th>
+          <th class="px-6 py-3 text-left text-sm font-medium text-gray-700">Room</th>
+          <th class="px-6 py-3 text-left text-sm font-medium text-gray-700">Dates</th>
+          <th class="px-6 py-3 text-left text-sm font-medium text-gray-700">Status</th>
+          <th class="px-6 py-3 text-left text-sm font-medium text-gray-700">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-200">
+        {% for r in reservations %}
+        <tr class="hover:bg-gray-50">
+          <td class="px-6 py-4 text-sm text-gray-900">{{ r.id }}</td>
+          <td class="px-6 py-4 text-sm text-gray-900">{{ r.customer.username }}</td>
+          <td class="px-6 py-4 text-sm text-gray-900">{{ r.room }}</td>
+          <td class="px-6 py-4 text-sm text-gray-900">{{ r.check_in }} to {{ r.check_out }}</td>
+          <td class="px-6 py-4 text-sm text-gray-900">{{ r.status }}</td>
+          <td class="px-6 py-4 text-sm text-gray-900 space-x-2">
+            {% if r.status != 'APPROVED' %}
+            <a href="{% url 'hotel:approve_reservation' r.id %}" class="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600">Approve</a>
+            {% endif %}
+            {% if r.status != 'CANCELLED' %}
+            <a href="{% url 'hotel:cancel_reservation' r.id %}" class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600">Cancel</a>
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="6" class="px-6 py-4 text-center text-gray-500">No reservations</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
 {% endblock %}

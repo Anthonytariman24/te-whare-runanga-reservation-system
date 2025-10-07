@@ -8,35 +8,44 @@
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col">
   <!-- Navbar -->
-  <nav class="bg-white shadow-md">
-    <div class="container mx-auto px-6 py-4 flex justify-between items-center">
-      <a href="/" class="text-2xl font-bold text-blue-600">Hotel</a>
+<!-- Navbar -->
+<nav class="bg-white shadow-md">
+  <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+    <a href="/" class="text-2xl font-bold text-blue-600">Hotel</a>
 
-      <div class="space-x-4 text-gray-700">
-        {% if user.is_authenticated %}
-          <span class="text-sm text-gray-600">Logged in as 
-            <span class="font-semibold text-blue-500">{{ user.username }}</span>
-          </span>
-          <a href="{% url 'hotel:logout' %}" class="text-sm text-red-500 hover:text-red-600 font-medium">Logout</a>
+    <div class="space-x-4 text-gray-700 flex items-center">
+      {% if user.is_authenticated %}
+        <span class="text-sm text-gray-600 mr-4">Logged in as 
+          <span class="font-semibold text-blue-500">{{ user.username }}</span>
+        </span>
 
-          {% if user.is_staff %}
-            <!-- Admin navigation -->
-            <a href="{% url 'hotel:admin_reservations' %}" class="hover:text-blue-500 font-medium">All Reservations</a>
-            <a href="{% url 'hotel:manage_rooms' %}" class="hover:text-blue-500 font-medium">Manage Rooms</a>
+        <!-- Logout form (POST) -->
+        <form method="POST" action="{% url 'hotel:logout' %}" class="inline">
+          {% csrf_token %}
+          <button type="submit" class="text-sm text-red-500 hover:text-red-600 font-medium">
+            Logout
+          </button>
+        </form>
 
-          {% else %}
-            <!-- Customer navigation -->
-            <a href="{% url 'hotel:room_list' %}" class="hover:text-blue-500 font-medium">Available Rooms</a>
-            <a href="{% url 'hotel:my_reservations' %}" class="hover:text-blue-500 font-medium">My Reservations</a>
-            <a href="{% url 'hotel:notifications' %}" class="hover:text-blue-500 font-medium">Notifications</a>
-          {% endif %}
+        {% if user.is_staff %}
+          <!-- Admin navigation -->
+          <a href="{% url 'hotel:admin_reservations' %}" class="hover:text-blue-500 font-medium ml-4">All Reservations</a>
+          <a href="{% url 'hotel:manage_rooms' %}" class="hover:text-blue-500 font-medium ml-4">Manage Rooms</a>
         {% else %}
-          <a href="{% url 'login' %}" class="hover:text-blue-500 font-medium">Login</a>
-          <a href="{% url 'hotel:register' %}" class="hover:text-blue-500 font-medium">Register</a>
+          <!-- Customer navigation -->
+          <a href="{% url 'hotel:room_list' %}" class="hover:text-blue-500 font-medium ml-4">Available Rooms</a>
+          <a href="{% url 'hotel:my_reservations' %}" class="hover:text-blue-500 font-medium ml-4">My Reservations</a>
+          <a href="{% url 'hotel:notifications' %}" class="hover:text-blue-500 font-medium ml-4">Notifications</a>
         {% endif %}
-      </div>
+
+      {% else %}
+        <a href="{% url 'hotel:login' %}" class="hover:text-blue-500 font-medium">Login</a>
+        <a href="{% url 'hotel:register' %}" class="hover:text-blue-500 font-medium ml-4">Register</a>
+      {% endif %}
     </div>
-  </nav>
+  </div>
+</nav>
+
 
   <!-- Messages -->
   {% if messages %}

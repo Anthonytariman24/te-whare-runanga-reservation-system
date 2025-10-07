@@ -5,12 +5,12 @@ from django.contrib.auth import views as auth_views
 urlpatterns = [
     path('admin/', admin.site.urls),
 
-    # ✅ Custom logout path FIRST (accepts GET)
-    path('accounts/logout/', auth_views.LogoutView.as_view(next_page='/'), name='logout'),
+    # Custom logout view (GET method accepted)
+    path('logout/', auth_views.LogoutView.as_view(next_page='/'), name='logout'),
 
-    # ✅ Built-in authentication routes
+    # Built-in authentication routes (login, password change, etc.)
     path('accounts/', include('django.contrib.auth.urls')),
 
-    # ✅ Your main hotel app URLs LAST
+    # Your hotel app URLs
     path('', include('hotel.urls')),
 ]

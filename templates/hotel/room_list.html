@@ -1,10 +1,24 @@
-
 {% extends 'base.html' %}
 {% block content %}
-<h2>Available Rooms</h2>
-<ul>
-  {% for r in rooms %}
-    <li>{{ r.number }} - {{ r.room_type }} - PHP {{ r.price }} - <a href="{% url 'hotel:make_reservation' r.id %}">Reserve</a></li>
-  {% empty %}<li>No rooms available.</li>{% endfor %}
-</ul>
+<div class="container mx-auto py-8">
+  <h2 class="text-3xl font-bold text-gray-900 mb-6 text-center">Available Rooms</h2>
+
+  {% if rooms %}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {% for r in rooms %}
+        <div class="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow">
+          <h3 class="text-xl font-semibold text-gray-800 mb-2">Room {{ r.number }}</h3>
+          <p class="text-gray-600 mb-1">Type: {{ r.room_type }}</p>
+          <p class="text-gray-600 mb-4">Price: <span class="font-medium">PHP {{ r.price }}</span></p>
+          <a href="{% url 'hotel:make_reservation' r.id %}" 
+             class="inline-block w-full text-center py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md transition-colors">
+            Reserve
+          </a>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="text-center text-gray-500 mt-6">No rooms available at the moment.</p>
+  {% endif %}
+</div>
 {% endblock %}

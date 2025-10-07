@@ -1,10 +1,8 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 {% block content %}
 <div class="min-h-screen flex items-center justify-center bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
   <div class="max-w-md w-full bg-white p-8 rounded-xl shadow-lg">
-    <h2 class="text-2xl font-bold text-gray-900 text-center mb-6">
-      Reserve Room {{ room.number }}
-    </h2>
+    <h2 class="text-center text-2xl font-bold text-gray-900 mb-6">Login</h2>
 
     <form method="post" class="space-y-6">
       {% csrf_token %}
@@ -18,11 +16,15 @@
         </div>
       {% endfor %}
 
-      <button type="submit"
-              class="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-        Reserve
+      <button type="submit" class="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+        Login
       </button>
     </form>
+
+    <p class="mt-6 text-center text-sm text-gray-600">
+      Don't have an account? 
+      <a href="{% url 'hotel:register' %}" class="text-blue-600 hover:text-blue-800 font-medium">Register here</a>
+    </p>
   </div>
 </div>
 {% endblock %}

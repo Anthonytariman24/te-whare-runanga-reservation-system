@@ -1,26 +1,14 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Room, Reservation, Notification
-from .forms import ReservationForm, UserRegistrationForm
+from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
-from django.contrib.auth import login
-from django.contrib.auth import logout
+from .models import Room, Reservation, Notification
+from .forms import ReservationForm, UserRegistrationForm,LoginForm  
 
 
-
-
-
-
-
-@login_required
-def logout_view(request):
-    logout(request)
-    messages.success(request, "You have been logged out successfully.")
-    return redirect('hotel:home')
-
-
-
-
+# -------------------
+# Authentication Views
+# -------------------
 
 def home(request):
     return render(request, 'hotel/home.html')
@@ -40,11 +28,40 @@ def register(request):
             return redirect('hotel:room_list')
     else:
         form = UserRegistrationForm()
-    return render(request, 'registration/register.html', {'form': form})
+    return render(request, 'register.html', {'form': form})
+
+
+def login_view(request):
+    form = LoginForm(request.POST or None)
+    
+    if request.method == 'POST' and form.is_valid():
+        username = form.cleaned_data['username']
+        password = form.cleaned_data['password']
+        user = authenticate(request, username=username, password=password)
+        
+        if user is not None:
+            login(request, user)
+            messages.success(request, f'Welcome back {user.username}!')
+            if user.is_staff:
+                return redirect('hotel:admin_reservations')
+            else:
+                return redirect('hotel:room_list')
+        else:
+            messages.error(request, 'Invalid username or password')
+    
+    return render(request, 'login.html', {'form': form})
+
+
+
+@login_required
+def logout_view(request):
+    logout(request)
+    messages.success(request, "You have been logged out successfully.")
+    return redirect('hotel:home')
 
 
 # -------------------
-# User type helpers
+# User Type Helpers
 # -------------------
 
 def is_admin(user):
@@ -55,7 +72,7 @@ def is_customer(user):
 
 
 # -------------------
-# Customer-only views
+# Customer Views
 # -------------------
 
 @login_required
@@ -72,12 +89,20 @@ def make_reservation(request, room_id):
     if request.method == 'POST':
         form = ReservationForm(request.POST)
         if form.is_valid():
+            check_in = form.cleaned_data['check_in']
+            check_out = form.cleaned_data['check_out']
+            if check_in >= check_out:
+                messages.error(request, "Check-out date must be after check-in.")
+                return render(request, 'hotel/make_reservation.html', {'form': form, 'room': room})
+
             res = form.save(commit=False)
             res.room = room
             res.customer = request.user
             res.save()
-            Notification.objects.create(user=request.user,
-                                        message=f"Reservation {res.id} created and pending approval")
+            Notification.objects.create(
+                user=request.user,
+                message=f"Reservation {res.id} created and pending approval"
+            )
             messages.success(request, 'Reservation created and pending approval.')
             return redirect('hotel:my_reservations')
     else:
@@ -100,7 +125,7 @@ def notifications(request):
 
 
 # -------------------
-# Admin-only views
+# Admin Views
 # -------------------
 
 @login_required
@@ -116,7 +141,11 @@ def approve_reservation(request, res_id):
     res = get_object_or_404(Reservation, id=res_id)
     res.status = 'APPROVED'
     res.save()
-    Notification.objects.create(user=res.customer, message=f"Your reservation {res.id} was APPROVED")
+    Notification.objects.create(
+        user=res.customer,
+        message=f"Your reservation {res.id} was APPROVED"
+    )
+    messages.success(request, f"Reservation {res.id} approved.")
     return redirect('hotel:admin_reservations')
 
 
@@ -126,9 +155,12 @@ def cancel_reservation(request, res_id):
     res = get_object_or_404(Reservation, id=res_id)
     res.status = 'CANCELLED'
     res.save()
-    Notification.objects.create(user=res.customer, message=f"Your reservation {res.id} was CANCELLED")
+    Notification.objects.create(
+        user=res.customer,
+        message=f"Your reservation {res.id} was CANCELLED"
+    )
+    messages.success(request, f"Reservation {res.id} cancelled.")
     return redirect('hotel:admin_reservations')
-
 
 
 @login_required

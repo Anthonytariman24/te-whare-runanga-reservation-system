@@ -1,10 +1,27 @@
-
 {% extends 'base.html' %}
 {% block content %}
-<h2>Notifications</h2>
-<ul>
-  {% for n in notifications %}
-    <li>{{ n.created_at }} - {% if not n.read %}<strong>NEW</strong>{% endif %} {{ n.message }}</li>
-  {% empty %}<li>No notifications.</li>{% endfor %}
-</ul>
+<div class="container mx-auto py-8">
+  <h2 class="text-3xl font-bold text-gray-900 mb-6 text-center">Notifications</h2>
+
+  {% if notifications %}
+    <ul class="space-y-4">
+      {% for n in notifications %}
+        <li class="bg-white p-4 rounded-lg shadow-sm flex justify-between items-center 
+                   {% if not n.read %}border-l-4 border-blue-500{% endif %}">
+          <div>
+            <p class="text-gray-700">{{ n.message }}</p>
+            <p class="text-sm text-gray-500 mt-1">{{ n.created_at|date:"M d, Y H:i" }}</p>
+          </div>
+          {% if not n.read %}
+            <span class="inline-block bg-blue-500 text-white text-xs font-semibold px-2 py-1 rounded-full">
+              NEW
+            </span>
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="text-center text-gray-500 mt-6">No notifications available.</p>
+  {% endif %}
+</div>
 {% endblock %}

@@ -13,6 +13,8 @@ urlpatterns = [
     path('approve/<int:res_id>/', views.approve_reservation, name='approve_reservation'),
     path('cancel/<int:res_id>/', views.cancel_reservation, name='cancel_reservation'),
     path('register/', views.register, name='register'),
+    
+    path('login/', views.login_view, name='login'),
 
     path('manage-rooms/', views.manage_rooms, name='manage_rooms'),
 
