@@ -16,61 +16,60 @@
 <nav class="bg-white shadow-md">
   <div class="container mx-auto px-6 py-4 flex items-center justify-between relative">
     
-    <!-- Logo on the left -->
+    <!-- Logo -->
     <a href="/" class="text-2xl font-bold text-blue-600">Hotel</a>
 
-    <!-- Centered navigation links -->
-    <div class="absolute left-1/2 transform -translate-x-1/2 flex space-x-6">
+    <!-- Hamburger Menu (Mobile) -->
+    <div class="md:hidden">
+      <button id="menu-button" class="text-gray-700 focus:outline-none">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Navigation Links -->
+    <div id="menu" class="hidden md:flex md:space-x-6 absolute md:static left-1/2 transform md:transform-none -translate-x-1/2">
       {% if user.is_authenticated %}
         {% if user.is_staff %}
-          <!-- Admin navigation -->
-          <a href="{% url 'hotel:admin_reservations' %}" 
-             class="text-gray-700 hover:text-blue-500 font-medium transition-colors duration-200">
+          <a href="{% url 'hotel:admin_reservations' %}" class="text-gray-700 hover:text-blue-500 font-medium transition-colors duration-200">
             All Reservations
           </a>
-          <a href="{% url 'hotel:manage_rooms' %}" 
-             class="text-gray-700 hover:text-blue-500 font-medium transition-colors duration-200">
+          <a href="{% url 'hotel:manage_rooms' %}" class="text-gray-700 hover:text-blue-500 font-medium transition-colors duration-200">
             Manage Rooms
           </a>
         {% else %}
-          <!-- Customer navigation -->
-          <a href="{% url 'hotel:room_list' %}" 
-             class="text-gray-700 hover:text-blue-500 font-medium transition-colors duration-200">
+          <a href="{% url 'hotel:room_list' %}" class="text-gray-700 hover:text-blue-500 font-medium transition-colors duration-200">
             Available Rooms
           </a>
-          <a href="{% url 'hotel:my_reservations' %}" 
-             class="text-gray-700 hover:text-blue-500 font-medium transition-colors duration-200">
+          <a href="{% url 'hotel:my_reservations' %}" class="text-gray-700 hover:text-blue-500 font-medium transition-colors duration-200">
             My Reservations
           </a>
-          <a href="{% url 'hotel:notifications' %}" 
-             class="text-gray-700 hover:text-blue-500 font-medium transition-colors duration-200">
+          <a href="{% url 'hotel:notifications' %}" class="text-gray-700 hover:text-blue-500 font-medium transition-colors duration-200">
             Notifications
           </a>
         {% endif %}
       {% else %}
-        <!-- Guest navigation -->
-        <a href="{% url 'hotel:login' %}" 
-           class="text-gray-700 hover:text-blue-500 font-medium transition-colors duration-200">
+        <a href="{% url 'hotel:login' %}" class="text-gray-700 hover:text-blue-500 font-medium transition-colors duration-200">
            Login
         </a>
-        <a href="{% url 'hotel:register' %}" 
-           class="text-gray-700 hover:text-blue-500 font-medium transition-colors duration-200">
+        <a href="{% url 'hotel:register' %}" class="text-gray-700 hover:text-blue-500 font-medium transition-colors duration-200">
            Register
         </a>
       {% endif %}
     </div>
 
-    <!-- Username + Logout on the right -->
+    <!-- Username + Logout -->
     {% if user.is_authenticated %}
-      <div class="flex items-center space-x-4">
+      <div class="hidden md:flex items-center space-x-4">
         <span class="text-sm text-gray-600">
           Logged in as <span class="font-semibold text-blue-500 capitalize">{{ user.username }}</span>
         </span>
 
         <form method="POST" action="{% url 'hotel:logout' %}">
           {% csrf_token %}
-          <button type="submit" 
-                  class="text-sm cursor-pointer text-red-500 hover:text-red-600 font-medium transition-colors duration-200">
+          <button type="submit" class="text-sm cursor-pointer text-red-500 hover:text-red-600 font-medium transition-colors duration-200">
             Logout
           </button>
         </form>
@@ -78,7 +77,55 @@
     {% endif %}
 
   </div>
+
+  <!-- Mobile Menu -->
+  <div id="mobile-menu" class="md:hidden hidden px-6 pb-4 space-y-2">
+    {% if user.is_authenticated %}
+      {% if user.is_staff %}
+        <a href="{% url 'hotel:admin_reservations' %}" class="block text-gray-700 hover:text-blue-500 font-medium">
+          All Reservations
+        </a>
+        <a href="{% url 'hotel:manage_rooms' %}" class="block text-gray-700 hover:text-blue-500 font-medium">
+          Manage Rooms
+        </a>
+      {% else %}
+        <a href="{% url 'hotel:room_list' %}" class="block text-gray-700 hover:text-blue-500 font-medium">
+          Available Rooms
+        </a>
+        <a href="{% url 'hotel:my_reservations' %}" class="block text-gray-700 hover:text-blue-500 font-medium">
+          My Reservations
+        </a>
+        <a href="{% url 'hotel:notifications' %}" class="block text-gray-700 hover:text-blue-500 font-medium">
+          Notifications
+        </a>
+      {% endif %}
+    {% else %}
+      <a href="{% url 'hotel:login' %}" class="block text-gray-700 hover:text-blue-500 font-medium">
+        Login
+      </a>
+      <a href="{% url 'hotel:register' %}" class="block text-gray-700 hover:text-blue-500 font-medium">
+        Register
+      </a>
+    {% endif %}
+    {% if user.is_authenticated %}
+      <form method="POST" action="{% url 'hotel:logout' %}">
+        {% csrf_token %}
+        <button type="submit" class="w-full text-left text-red-500 hover:text-red-600 font-medium">
+          Logout
+        </button>
+      </form>
+    {% endif %}
+  </div>
 </nav>
+
+<script>
+  const menuButton = document.getElementById('menu-button');
+  const mobileMenu = document.getElementById('mobile-menu');
+
+  menuButton.addEventListener('click', () => {
+    mobileMenu.classList.toggle('hidden');
+  });
+</script>
 
 
 
