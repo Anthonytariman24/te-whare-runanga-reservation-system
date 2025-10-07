@@ -5,7 +5,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'django-insecure-change-me'
 DEBUG = True
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']  # idagdag ang localhost para dev
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    'te-whare-runanga-reservation-system-six.vercel.app',
+]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
