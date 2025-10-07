@@ -8,8 +8,6 @@ from django.http import JsonResponse
 
 
 
-
-
 # -------------------
 # Authentication Views
 # -------------------
@@ -173,10 +171,6 @@ def cancel_reservation(request, res_id):
 def manage_rooms(request):
     rooms = Room.objects.all().order_by('number')
     return render(request, 'hotel/manage_rooms.html', {'rooms': rooms})
-
-
-
-
 
 
 
