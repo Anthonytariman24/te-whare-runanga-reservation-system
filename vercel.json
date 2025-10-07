@@ -10,8 +10,5 @@
   "routes": [
     { "src": "/static/(.*)", "dest": "/static/$1" },
     { "src": "/(.*)", "dest": "manage.py" }
-  ],
-  "env": {
-    "DJANGO_SETTINGS_MODULE": "te_whare_runanga_reservation_system.settings"
-  }
+  ]
 }
