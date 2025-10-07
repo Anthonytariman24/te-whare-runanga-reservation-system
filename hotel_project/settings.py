@@ -2,13 +2,16 @@ from pathlib import Path
 import os
 import dj_database_url
 
+# -------------------------
+# BASE DIRECTORY
+# -------------------------
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # -------------------------
 # SECRET & DEBUG
 # -------------------------
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-change-me')
-DEBUG = os.environ.get('DEBUG', 'True') == 'True'  # Default True for local dev
+DEBUG = os.environ.get('DEBUG', 'True') == 'True'  # True for local dev
 
 # -------------------------
 # HOSTS
@@ -48,7 +51,7 @@ MIDDLEWARE = [
 # CORS
 # -------------------------
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",  # local frontend dev
+    "http://localhost:3000",  # local frontend
     "https://your-frontend.vercel.app",  # production frontend
 ]
 
@@ -76,22 +79,26 @@ TEMPLATES = [
 WSGI_APPLICATION = 'hotel_project.wsgi.application'
 
 # -------------------------
-# DATABASE
+# DATABASE CONFIGURATION
 # -------------------------
 DATABASE_URL = os.environ.get('DATABASE_URL')
+
 if DATABASE_URL:
     # Production/Postgres (Supabase)
     DATABASES = {
         'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600, ssl_require=True)
     }
 else:
-    # Local fallback (SQLite)
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
+    # Local development with SQLite only
+    if DEBUG:
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': BASE_DIR / 'db.sqlite3',
+            }
         }
-    }
+    else:
+        raise Exception("DATABASE_URL environment variable must be set in production!")
 
 # -------------------------
 # PASSWORD VALIDATORS
