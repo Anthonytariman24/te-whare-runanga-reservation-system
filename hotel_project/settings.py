@@ -99,11 +99,14 @@ STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
 
+
+
 # Folder kung saan iko-collect lahat ng static files bago i-deploy
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # LOGIN
+LOGIN_URL = '/login/'          
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
