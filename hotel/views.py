@@ -3,10 +3,11 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from .models import Room, Reservation, Notification
-from .forms import ReservationForm, UserRegistrationForm,LoginForm  
+from .forms import ReservationForm, UserRegistrationForm, LoginForm
 from django.http import JsonResponse
+from django.contrib.auth.models import User
+from django.contrib.auth.hashers import make_password
 from datetime import date
-
 
 # -------------------
 # Authentication Views
@@ -35,12 +36,10 @@ def register(request):
 
 def login_view(request):
     form = LoginForm(request.POST or None)
-    
     if request.method == 'POST' and form.is_valid():
         username = form.cleaned_data['username']
         password = form.cleaned_data['password']
         user = authenticate(request, username=username, password=password)
-        
         if user is not None:
             login(request, user)
             messages.success(request, f'Welcome back {user.username}!')
@@ -50,9 +49,7 @@ def login_view(request):
                 return redirect('hotel:room_list')
         else:
             messages.error(request, 'Invalid username or password')
-    
     return render(request, 'login.html', {'form': form})
-
 
 
 @login_required
@@ -76,45 +73,32 @@ def is_customer(user):
 # -------------------
 # Customer Views
 # -------------------
+@login_required
+@user_passes_test(is_customer)
 def room_list(request):
     today = date.today()
-
-    # ✅ Available rooms: walang approved reservation na active pa
     rooms = Room.objects.filter(is_active=True).exclude(
         reservations__status='APPROVED',
         reservations__check_out__gte=today
     ).distinct()
-
-    # ✅ Occupied rooms: may approved reservation na hindi pa tapos
     occupied_rooms = Room.objects.filter(
         is_active=True,
         reservations__status='APPROVED',
         reservations__check_out__gte=today
     ).distinct()
-
-    # Attach latest reservation dates (check_in / check_out) per occupied room
     for room in occupied_rooms:
         latest_reservation = room.reservations.filter(
             status='APPROVED',
             check_out__gte=today
         ).order_by('-check_in').first()
-
         room.check_in = latest_reservation.check_in if latest_reservation else None
         room.check_out = latest_reservation.check_out if latest_reservation else None
-
-    # 🔹 If user is authenticated, get their latest reservation per room
     user_reservations = {}
     if request.user.is_authenticated:
-        reservations = Reservation.objects.filter(
-            customer=request.user
-        ).order_by('-created_at')
-
-        # store only the latest reservation per room
+        reservations = Reservation.objects.filter(customer=request.user).order_by('-created_at')
         for res in reservations:
             if res.room.id not in user_reservations:
                 user_reservations[res.room.id] = res.status
-
-    # ✅ Pass all data to template
     context = {
         'rooms': rooms,
         'occupied_rooms': occupied_rooms,
@@ -135,7 +119,6 @@ def make_reservation(request, room_id):
             if check_in >= check_out:
                 messages.error(request, "Check-out date must be after check-in.")
                 return render(request, 'hotel/make_reservation.html', {'form': form, 'room': room})
-
             res = form.save(commit=False)
             res.room = room
             res.customer = request.user
@@ -149,7 +132,6 @@ def make_reservation(request, room_id):
     else:
         form = ReservationForm(initial={'room': room.id})
     return render(request, 'hotel/make_reservation.html', {'form': form, 'room': room})
-
 
 
 @login_required
@@ -212,14 +194,6 @@ def manage_rooms(request):
     return render(request, 'hotel/manage_rooms.html', {'rooms': rooms})
 
 
-
-
-
-
-
-
-
-
 @login_required
 @user_passes_test(is_admin)
 def add_room(request):
@@ -249,9 +223,6 @@ def add_room(request):
     return JsonResponse({"success": False, "error": "Invalid request method."})
 
 
-
-
-
 @login_required
 @user_passes_test(is_admin)
 def update_room(request, room_id):
@@ -261,16 +232,13 @@ def update_room(request, room_id):
         room_type = request.POST.get("room_type")
         price = request.POST.get("price")
         description = request.POST.get("description")
-        
         if not number or not price:
             return JsonResponse({"success": False, "error": "Number and Price are required."})
-        
         room.number = number
         room.room_type = room_type
         room.price = price
         room.description = description
         room.save()
-        
         return JsonResponse({
             "success": True,
             "room": {
@@ -289,5 +257,93 @@ def delete_room(request, room_id):
     room = get_object_or_404(Room, id=room_id)
     if request.method == "POST":
         room.delete()
+        return JsonResponse({"success": True})
+    return JsonResponse({"success": False, "error": "Invalid request method."})
+
+
+# -------------------
+# User Management Views
+# -------------------
+
+@login_required
+@user_passes_test(is_admin)
+def manage_users(request):
+    users = User.objects.all().order_by('username')
+    return render(request, 'hotel/manage_users.html', {'users': users})
+
+
+@login_required
+@user_passes_test(is_admin)
+def add_user(request):
+    if request.method == "POST":
+        username = request.POST.get("username")
+        email = request.POST.get("email")
+        password = request.POST.get("password")
+        is_staff = request.POST.get("is_staff") == "on"
+
+        if not username or not password:
+            return JsonResponse({"success": False, "error": "Username and password are required."})
+
+        if User.objects.filter(username=username).exists():
+            return JsonResponse({"success": False, "error": "Username already exists."})
+
+        user = User.objects.create(
+            username=username,
+            email=email,
+            is_staff=is_staff,
+            password=make_password(password)
+        )
+        return JsonResponse({
+            "success": True,
+            "user": {
+                "id": user.id,
+                "username": user.username,
+                "email": user.email,
+                "is_staff": user.is_staff,
+            }
+        })
+    return JsonResponse({"success": False, "error": "Invalid request method."})
+
+
+@login_required
+@user_passes_test(is_admin)
+def edit_user(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+    if request.method == "POST":
+        username = request.POST.get("username")
+        email = request.POST.get("email")
+        is_staff = request.POST.get("is_staff") == "on"
+        password = request.POST.get("password")
+
+        if not username:
+            return JsonResponse({"success": False, "error": "Username is required."})
+
+        user.username = username
+        user.email = email
+        user.is_staff = is_staff
+        if password:
+            user.password = make_password(password)
+        user.save()
+
+        return JsonResponse({
+            "success": True,
+            "user": {
+                "id": user.id,
+                "username": user.username,
+                "email": user.email,
+                "is_staff": user.is_staff,
+            }
+        })
+    return JsonResponse({"success": False, "error": "Invalid request method."})
+
+
+@login_required
+@user_passes_test(is_admin)
+def delete_user(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+    if request.method == "POST":
+        if user.is_superuser:
+            return JsonResponse({"success": False, "error": "Cannot delete a superuser!"})
+        user.delete()
         return JsonResponse({"success": True})
     return JsonResponse({"success": False, "error": "Invalid request method."})

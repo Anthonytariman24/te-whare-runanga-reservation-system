@@ -163,5 +163,134 @@
   </div>
 </div>
 
+
+
+
+
+
+
+
+
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+$(document).ready(function(){
+
+  // Open/close modals using hidden class
+  $('#openModal').click(() => $('#addRoomModal').removeClass('hidden'));
+  $('#closeModal').click(() => $('#addRoomModal').addClass('hidden'));
+  $('#closeEditModal').click(() => $('#updateRoomModal').addClass('hidden'));
+
+  // Edit modal open
+  $('.edit-room-btn').click(function(){
+      $('#edit_room_id').val($(this).data('id'));
+      $('#edit_number').val($(this).data('number'));
+      $('#edit_room_type').val($(this).data('type'));
+      $('#edit_price').val($(this).data('price'));
+      $('#edit_description').val($(this).data('description'));
+      $('#updateRoomModal').removeClass('hidden');
+  });
+
+  // Add room
+  $('#addRoomForm').submit(function(e){
+      e.preventDefault();
+      $.ajax({
+          type: 'POST',
+          url: "{% url 'hotel:add_room' %}",
+          data: $(this).serialize(),
+          success: function(res){
+              if(res.success){
+                  Swal.fire({
+                      icon: 'success',
+                      title: 'Room Added!',
+                      text: `Room ${res.room.number} has been added successfully.`,
+                      timer: 2000,
+                      showConfirmButton: false
+                  }).then(() => location.reload());
+              } else {
+                  Swal.fire({
+                      icon: 'error',
+                      title: 'Error',
+                      text: res.error
+                  });
+              }
+          }
+      });
+  });
+
+  // Update room
+  $('#editRoomForm').submit(function(e){
+      e.preventDefault();
+      let roomId = $('#edit_room_id').val();
+      $.ajax({
+          type: 'POST',
+          url: `/rooms/update/${roomId}/`,
+          data: $(this).serialize(),
+          success: function(res){
+              if(res.success){
+                  Swal.fire({
+                      icon: 'success',
+                      title: 'Room Updated!',
+                      text: `Room ${res.room.number} has been updated successfully.`,
+                      timer: 2000,
+                      showConfirmButton: false
+                  }).then(() => location.reload());
+              } else {
+                  Swal.fire({
+                      icon: 'error',
+                      title: 'Error',
+                      text: res.error
+                  });
+              }
+          }
+      });
+  });
+
+  // Delete room
+  $('.delete-room-btn').click(function(){
+      let roomId = $(this).data('id');
+      Swal.fire({
+          title: 'Are you sure?',
+          text: "This will permanently delete the room!",
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#d33',
+          cancelButtonColor: '#3085d6',
+          confirmButtonText: 'Yes, delete it!',
+          reverseButtons: true
+      }).then((result) => {
+          if(result.isConfirmed){
+              $.ajax({
+                  type: 'POST',
+                  url: `/rooms/delete/${roomId}/`,
+                  data: { 'csrfmiddlewaretoken': '{{ csrf_token }}' },
+                  success: function(res){
+                      if(res.success){
+                          Swal.fire({
+                              icon: 'success',
+                              title: 'Deleted!',
+                              text: 'Room has been deleted.',
+                              timer: 2000,
+                              showConfirmButton: false
+                          }).then(() => location.reload());
+                      } else {
+                          Swal.fire({
+                              icon: 'error',
+                              title: 'Error',
+                              text: res.error
+                          });
+                      }
+                  }
+              });
+          }
+      });
+  });
+
+});
+</script>
+
 {% endblock %}
 

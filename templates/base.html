@@ -38,6 +38,9 @@
           <a href="{% url 'hotel:manage_rooms' %}" class="text-gray-700 hover:text-blue-500 font-medium transition-colors duration-200">
             Manage Rooms
           </a>
+          <a href="{% url 'hotel:manage_users' %}" class="text-gray-700 hover:text-blue-500 font-medium transition-colors duration-200">
+            Manage Users
+          </a>
         {% else %}
           <a href="{% url 'hotel:room_list' %}" class="text-gray-700 hover:text-blue-500 font-medium transition-colors duration-200">
             Available Rooms
@@ -87,6 +90,9 @@
         <a href="{% url 'hotel:manage_rooms' %}" class="block text-gray-700 hover:text-blue-500 font-medium">
           Manage Rooms
         </a>
+        <a href="{% url 'hotel:manage_users' %}" class="block text-gray-700 hover:text-blue-500 font-medium">
+          Manage Users
+        </a>
       {% else %}
         <a href="{% url 'hotel:room_list' %}" class="block text-gray-700 hover:text-blue-500 font-medium">
           Available Rooms
@@ -116,6 +122,7 @@
     {% endif %}
   </div>
 </nav>
+
 
 <script>
   const menuButton = document.getElementById('menu-button');
@@ -167,126 +174,6 @@
 
 
 
-{% block extra_js %}
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-<script>
-$(document).ready(function(){
-
-  // Open/close modals
-  $('#openModal').click(() => $('#addRoomModal').fadeIn());
-  $('#closeModal').click(() => $('#addRoomModal').fadeOut());
-  $('#closeEditModal').click(() => $('#updateRoomModal').fadeOut());
-
-  // Edit modal open
-  $('.edit-room-btn').click(function(){
-      $('#edit_room_id').val($(this).data('id'));
-      $('#edit_number').val($(this).data('number'));
-      $('#edit_room_type').val($(this).data('type'));
-      $('#edit_price').val($(this).data('price'));
-      $('#edit_description').val($(this).data('description'));
-      $('#updateRoomModal').fadeIn();
-  });
-
-  // Add room
-  $('#addRoomForm').submit(function(e){
-      e.preventDefault();
-      $.ajax({
-          type: 'POST',
-          url: "{% url 'hotel:add_room' %}",
-          data: $(this).serialize(),
-          success: function(res){
-              if(res.success){
-                  Swal.fire({
-                      icon: 'success',
-                      title: 'Room Added!',
-                      text: `Room ${res.room.number} has been added successfully.`,
-                      timer: 2000,
-                      showConfirmButton: false
-                  }).then(() => location.reload());
-              } else {
-                  Swal.fire({
-                      icon: 'error',
-                      title: 'Error',
-                      text: res.error
-                  });
-              }
-          }
-      });
-  });
-
-  // Update room
-  $('#editRoomForm').submit(function(e){
-      e.preventDefault();
-      let roomId = $('#edit_room_id').val();
-      $.ajax({
-          type: 'POST',
-          url: `/rooms/update/${roomId}/`,
-          data: $(this).serialize(),
-          success: function(res){
-              if(res.success){
-                  Swal.fire({
-                      icon: 'success',
-                      title: 'Room Updated!',
-                      text: `Room ${res.room.number} has been updated successfully.`,
-                      timer: 2000,
-                      showConfirmButton: false
-                  }).then(() => location.reload());
-              } else {
-                  Swal.fire({
-                      icon: 'error',
-                      title: 'Error',
-                      text: res.error
-                  });
-              }
-          }
-      });
-  });
-
-  // Delete room
-  $('.delete-room-btn').click(function(){
-      let roomId = $(this).data('id');
-      Swal.fire({
-          title: 'Are you sure?',
-          text: "This will permanently delete the room!",
-          icon: 'warning',
-          showCancelButton: true,
-          confirmButtonColor: '#d33',
-          cancelButtonColor: '#3085d6',
-          confirmButtonText: 'Yes, delete it!',
-          reverseButtons: true
-      }).then((result) => {
-          if(result.isConfirmed){
-              $.ajax({
-                  type: 'POST',
-                  url: `/rooms/delete/${roomId}/`,
-                  data: { 'csrfmiddlewaretoken': '{{ csrf_token }}' },
-                  success: function(res){
-                      if(res.success){
-                          Swal.fire({
-                              icon: 'success',
-                              title: 'Deleted!',
-                              text: 'Room has been deleted.',
-                              timer: 2000,
-                              showConfirmButton: false
-                          }).then(() => location.reload());
-                      } else {
-                          Swal.fire({
-                              icon: 'error',
-                              title: 'Error',
-                              text: res.error
-                          });
-                      }
-                  }
-              });
-          }
-      });
-  });
-
-});
-</script>
-{% endblock %}
 
 
 
