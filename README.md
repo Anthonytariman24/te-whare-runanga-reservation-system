@@ -13,9 +13,8 @@ How to run:
 4. Run server: `python manage.py runserver`
 
 
-
- ALLOWED_HOSTS = [
-     'localhost',
-     '127.0.0.1',
-    'https://te-whare-runanga-reservation-system.vercel.app',
-]
+# ALLOWED_HOSTS = [
+#     'localhost',
+#     '127.0.0.1',
+#     'https://te-whare-runanga-reservation-system.vercel.app',
+# ]
