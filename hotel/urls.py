@@ -13,17 +13,15 @@ urlpatterns = [
     path('approve/<int:res_id>/', views.approve_reservation, name='approve_reservation'),
     path('cancel/<int:res_id>/', views.cancel_reservation, name='cancel_reservation'),
     path('register/', views.register, name='register'),
-    
     path('login/', views.login_view, name='login'),
 
     path('manage-rooms/', views.manage_rooms, name='manage_rooms'),
 
+    # Room CRUD
+    path('add-room/', views.add_room, name='add_room'),
+    path('rooms/update/<int:room_id>/', views.update_room, name='update_room'),
+    path('rooms/delete/<int:room_id>/', views.delete_room, name='delete_room'),
 
     # ✅ custom logout
     path('logout/', views.logout_view, name='logout'),
-
-    path('add-room/', views.add_room, name='add_room')
-
-    
-
 ]

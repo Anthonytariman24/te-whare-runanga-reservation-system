@@ -247,3 +247,47 @@ def add_room(request):
             }
         })
     return JsonResponse({"success": False, "error": "Invalid request method."})
+
+
+
+
+
+@login_required
+@user_passes_test(is_admin)
+def update_room(request, room_id):
+    room = get_object_or_404(Room, id=room_id)
+    if request.method == "POST":
+        number = request.POST.get("number")
+        room_type = request.POST.get("room_type")
+        price = request.POST.get("price")
+        description = request.POST.get("description")
+        
+        if not number or not price:
+            return JsonResponse({"success": False, "error": "Number and Price are required."})
+        
+        room.number = number
+        room.room_type = room_type
+        room.price = price
+        room.description = description
+        room.save()
+        
+        return JsonResponse({
+            "success": True,
+            "room": {
+                "number": room.number,
+                "room_type": room.room_type,
+                "price": str(room.price),
+                "description": room.description
+            }
+        })
+    return JsonResponse({"success": False, "error": "Invalid request method."})
+
+
+@login_required
+@user_passes_test(is_admin)
+def delete_room(request, room_id):
+    room = get_object_or_404(Room, id=room_id)
+    if request.method == "POST":
+        room.delete()
+        return JsonResponse({"success": True})
+    return JsonResponse({"success": False, "error": "Invalid request method."})

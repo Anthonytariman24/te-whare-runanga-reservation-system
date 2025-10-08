@@ -3,10 +3,10 @@
 <div class="container mx-auto py-8">
   <div class="flex justify-between items-center mb-6">
     <h2 class="text-3xl font-bold text-gray-900">Manage Rooms</h2>
-    <a href="#" id="openModal"
+    <button id="openModal"
        class="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition">
        <span class="material-icons mr-2">add</span> Add New Room
-    </a>
+    </button>
   </div>
 
   <div class="overflow-x-auto">
@@ -18,30 +18,50 @@
           <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
           <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
           <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
         </tr>
       </thead>
+
       <tbody class="divide-y divide-gray-200">
         {% for room in rooms %}
         <tr class="hover:bg-gray-50">
-          <td class="px-6 py-4 whitespace-nowrap text-gray-800 font-medium">{{ room.number }}</td>
-          <td class="px-6 py-4 whitespace-nowrap text-gray-700">{{ room.room_type|default:"-" }}</td>
-          <td class="px-6 py-4 whitespace-nowrap text-gray-700">nzd {{ room.price }}</td>
-          <td class="px-6 py-4 whitespace-nowrap text-gray-600">{{ room.description|default:"(no description)" }}</td>
-          <td class="px-6 py-4 whitespace-nowrap">
+          <td class="px-6 py-4 text-gray-800 font-medium">{{ room.number }}</td>
+          <td class="px-6 py-4 text-gray-700">{{ room.room_type|default:"-" }}</td>
+          <td class="px-6 py-4 text-gray-700">nzd {{ room.price }}</td>
+          <td class="px-6 py-4 text-gray-600">{{ room.description|default:"(no description)" }}</td>
+          <td class="px-6 py-4">
             {% if room.is_active %}
               <span class="flex items-center px-2 py-1 bg-green-200 text-green-800 rounded-full text-sm font-semibold">
-                <span class="material-icons text-green-800 mr-1">check_circle</span> Active
+                <span class="material-icons text-green-800 mr-1 text-sm">check_circle</span> Active
               </span>
             {% else %}
               <span class="flex items-center px-2 py-1 bg-red-200 text-red-800 rounded-full text-sm font-semibold">
-                <span class="material-icons text-red-800 mr-1">cancel</span> Inactive
+                <span class="material-icons text-red-800 mr-1 text-sm">cancel</span> Inactive
               </span>
             {% endif %}
+          </td>
+
+          <td class="px-6 py-4 flex space-x-2">
+            <button
+              class="edit-room-btn bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 transition flex items-center"
+              data-id="{{ room.id }}"
+              data-number="{{ room.number }}"
+              data-type="{{ room.room_type }}"
+              data-price="{{ room.price }}"
+              data-description="{{ room.description }}">
+              <span class="material-icons text-sm mr-1">edit</span> Edit
+            </button>
+
+            <button
+              class="delete-room-btn bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition flex items-center"
+              data-id="{{ room.id }}">
+              <span class="material-icons text-sm mr-1">delete</span> Delete
+            </button>
           </td>
         </tr>
         {% empty %}
         <tr>
-          <td colspan="5" class="px-6 py-4 text-center text-gray-500">No rooms available.</td>
+          <td colspan="6" class="px-6 py-4 text-center text-gray-500">No rooms available.</td>
         </tr>
         {% endfor %}
       </tbody>
@@ -49,37 +69,26 @@
   </div>
 </div>
 
-
-
-<!-- Modal Overlay -->
-<div id="addRoomModal" class="fixed inset-0 bg-black/30 flex items-center justify-center p-4" style="display: none;">
-  <!-- Modal Content -->
+<!-- Add Room Modal -->
+<div id="addRoomModal" class="fixed inset-0 bg-black/30 flex items-center justify-center p-4 hidden">
   <div class="bg-white rounded-xl shadow-lg w-full max-w-lg p-6 relative overflow-y-auto max-h-[90vh]">
-    
-    <!-- Close Button -->
     <button id="closeModal" class="absolute top-2 right-2 text-gray-500 hover:text-gray-700 cursor-pointer">
       <span class="material-icons">close</span>
     </button>
 
-    <!-- Modal Title -->
     <h3 class="text-xl font-semibold mb-4 text-center">Add New Room</h3>
 
-    <!-- Form -->
     <form id="addRoomForm" method="POST" class="space-y-4">
       {% csrf_token %}
-
-      <!-- Room Number -->
       <div>
         <label class="block text-gray-700 font-medium mb-1">Room Number</label>
         <input type="text" name="number" class="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
       </div>
 
-      <!-- Room Type -->
       <div hidden>
         <label class="block text-gray-700 font-medium mb-1">Room Type</label>
         <select name="room_type" id="room_type" class="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
-          <option value="" disabled selected>Select Room Type</option>
-          <option selected value="classroom ">classroom </option>
+          <option value="classroom" selected>Classroom</option>
           <option value="single">Single</option>
           <option value="double">Double</option>
           <option value="suite">Suite</option>
@@ -87,27 +96,72 @@
         </select>
       </div>
 
-      <!-- Price -->
       <div>
         <label class="block text-gray-700 font-medium mb-1">Price</label>
         <input type="number" name="price" step="0.01" class="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
       </div>
 
-      <!-- Description -->
       <div>
         <label class="block text-gray-700 font-medium mb-1">Description</label>
         <textarea name="description" class="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
       </div>
 
-      <!-- Submit Button -->
       <div class="flex justify-end">
         <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
           Add Room
         </button>
       </div>
+    </form>
+  </div>
+</div>
 
+<!-- Edit Room Modal -->
+<div id="updateRoomModal" class="fixed inset-0 bg-black/30 flex items-center justify-center p-4 hidden">
+  <div class="bg-white rounded-xl shadow-lg w-full max-w-lg p-6 relative overflow-y-auto max-h-[90vh]">
+    <button id="closeEditModal" class="absolute top-2 right-2 text-gray-500 hover:text-gray-700 cursor-pointer">
+      <span class="material-icons">close</span>
+    </button>
+
+    <h3 class="text-xl font-semibold mb-4 text-center">Edit Room</h3>
+
+    <form id="editRoomForm" method="POST" class="space-y-4">
+      {% csrf_token %}
+      <input type="hidden" name="room_id" id="edit_room_id">
+
+      <div>
+        <label class="block text-gray-700 font-medium mb-1">Room Number</label>
+        <input type="text" name="number" id="edit_number" class="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+      </div>
+
+      <div hidden>
+        <label class="block text-gray-700 font-medium mb-1">Room Type</label>
+        <select name="room_type" id="edit_room_type" class="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <option value="classroom">Classroom</option>
+          <option value="single">Single</option>
+          <option value="double">Double</option>
+          <option value="suite">Suite</option>
+          <option value="deluxe">Deluxe</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-gray-700 font-medium mb-1">Price</label>
+        <input type="number" name="price" id="edit_price" step="0.01" class="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+      </div>
+
+      <div>
+        <label class="block text-gray-700 font-medium mb-1">Description</label>
+        <textarea name="description" id="edit_description" class="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+      </div>
+
+      <div class="flex justify-end">
+        <button type="submit" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 transition">
+          Update Room
+        </button>
+      </div>
     </form>
   </div>
 </div>
 
 {% endblock %}
+
