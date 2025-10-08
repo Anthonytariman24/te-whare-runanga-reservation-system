@@ -73,8 +73,8 @@ def is_customer(user):
 # -------------------
 # Customer Views
 # -------------------
-@login_required
-@user_passes_test(is_customer)
+# @login_required
+# @user_passes_test(is_customer)
 def room_list(request):
     today = date.today()
     rooms = Room.objects.filter(is_active=True).exclude(
