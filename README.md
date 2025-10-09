@@ -1,5 +1,5 @@
 
-# Hotel Reservation Django Project (SQLite)
+# Conference Room Reservation Django Project (SQLite)
 
 Minimal Django skeleton implementing:
 - Admin: Login, Create/Update Room, List/Approve/Cancel Reservations, Logout
